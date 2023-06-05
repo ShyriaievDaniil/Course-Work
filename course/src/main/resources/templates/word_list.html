@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body class="bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border border-light border-2 rounded-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">Online Dictionary</a>
+        <div class="navbar-nav me-auto">
+            <a class="nav-link nav-item active" th:href="@{/language/all}">Languages</a>
+        </div>
+    </div>
+    <form action="/word/search" class="d-flex">
+        <input class="form-control" type="search" name="name" placeholder="Find a word">
+        <input type="submit" class="btn btn-outline-light" value="Search">
+    </form>
+</nav>
+<h1 align="center" class="display-1 text-white rounded-bottom border border-secondary shadow-lg">Found words:</h1>
+<div th:each="translation:${translationList}" align="center" class="border border-light rounded-bottom text-light">
+    <span th:text="${translation.word.wordInfo}+' '"></span>
+    <a th:text="${translation.name}"
+       th:href="@{/word/{id}(id=${translation.word.id})}" class="link-light"></a>
+</div>
+</body>
+</html>

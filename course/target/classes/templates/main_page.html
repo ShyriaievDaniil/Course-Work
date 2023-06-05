@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dictionary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body class="bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border border-light border-2 rounded-bottom">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">Online Dictionary</a>
+        <div class="navbar-nav me-auto">
+            <a class="nav-link nav-item active" th:href="@{/language/all}">Languages</a>
+            <a class="nav-link nav-item active" th:if="${user}" href="/dictionary/my">My Dictionaries</a>
+        </div>
+        <div>
+            <li th:unless="${user}" class="nav-item me-2">
+                <a class="btn btn-outline-light" th:href="@{/login}">Login</a>
+                <a class="btn btn-outline-light" th:href="@{/user/new}">Registration</a>
+            </li>
+            <li th:if="${user}" class="nav-item">
+                <a class="navbar-text" th:text="${user.username}"></a>
+                <a class="btn btn-outline-light" th:href="@{/logout}">Logout</a>
+            </li>
+        </div>
+    </div>
+    <form action="/word/search" class="d-flex">
+        <input class="form-control" type="search" name="name" placeholder="Find a word">
+        <input type="submit" class="btn btn-outline-light" value="Search">
+    </form>
+</nav>
+<h1 align="center" class="display-1 text-white rounded-bottom border border-secondary shadow-lg" style="width: 80%; margin: auto">
+    <span th:if="${name}" th:text="${name}+' by '+${owner}"></span>
+    <span th:unless="${name}">Online Dictionary</span>
+</h1>
+<form align="center" th:if="${user} and ${owner}==${user.username}" th:action="@{/dictionary/edit/{id}(id=${dictionary_id})}"
+      method="get">
+    <input type="submit" class="btn btn-outline-light" value="Edit dictionary">
+</form>
+<table align="center" class="table table-dark table-hover table-bordered shadow-lg" style="width:75%">
+    <thead>
+    <tr>
+        <form action="#" th:action="${url}" method="get">
+            <td>
+                <select class="form-select form-select-sm" name="from">
+                    <option th:each="language:${languages}" th:text="${language.getName()}"
+                            th:value="${language.getName()}" th:selected="${language.getName().equals(from)}"></option>
+                </select>
+            </td>
+            <td>
+                <select class="form-select form-select-sm" name="to">
+                    <option th:each="language:${languages}" th:text="${language.getName()}"
+                            th:value="${language.getName()}" th:selected="${language.getName().equals(to)}"></option>
+                </select>
+            </td>
+            <td>
+                <input class="btn btn-outline-light" type="submit" value="Find translations">
+            </td>
+        </form>
+        <td>
+            <form th:action="${url}" method="get">
+                <input hidden name="from" th:value="${to}">
+                <input hidden name="to" th:value="${from}">
+                <input class="btn btn-outline-light" type="submit" value="Switch languages">
+            </form>
+        </td>
+    </tr>
+    </thead>
+    <tbody>
+    <div th:if="${dictionary}">
+        <div th:if="${user}"><tr th:if="${#sets.contains(user.getRolesToString(), 'ADMIN')}">
+            <td class="text-center" colspan="4" th:onclick="|location.href='@{/word/new}'|">Create new word</td>
+        </tr></div>
+        <tr th:each="word:${dictionary}">
+            <td th:text="${word[0]}" th:onclick="|location.href='@{/word/{id}(id=${word[2]})}'|"></td>
+            <td th:text="${word[1]}" th:onclick="|location.href='@{/word/{id}(id=${word[2]})}'|"></td>
+            <div th:if="${user}">
+                <td>
+                    <form th:action="@{/dictionary/save/{id}(id=${word[2]})}" method="post">
+                        <select class="form-select form-select-sm" name="dictionary_id">
+                            <option th:each="dict:${user.dictionaries}" th:value="${dict.id}" th:text="${dict.name}"
+                                    th:selected="${dict.name.equals(selected)}"></option>
+                        </select>
+                        <input class="btn btn-outline-light" type="submit" value="Add word to dictionary">
+                    </form>
+                </td>
+                <td th:if="${#sets.contains(user.getRolesToString(), 'ADMIN')}">
+                    <a th:href="@{/word/edit/{id}(id=${word[2]})}" class="btn btn-outline-light">Edit</a>
+                    <a th:href="@{/word/delete/{id}(id=${word[2]})}" class="btn btn-outline-light">Delete</a>
+                </td>
+            </div>
+        </tr>
+    </div>
+    <div th:unless="${dictionary}">
+        <div th:if="${user}"><tr th:if="${#sets.contains(user.getRolesToString(), 'ADMIN')}">
+            <td class="text-center" colspan="4" th:onclick="|location.href='@{/word/new}'|">Create new word</td>
+        </tr></div>
+        <tr>
+            <td colspan="4">None</td>
+        </tr>
+    </div>
+    </tbody>
+</table>
+</body>
+</html>
